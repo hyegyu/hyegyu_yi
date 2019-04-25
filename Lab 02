@@ -94,4 +94,4 @@ print(W * 2.5 + b)
 
 #결과값
  tf.Tensor(5.00667, shape=(), dtype=float32)    #5에 거의 수렴
- tf.Tensor(2.4946702, shape=(), dtype=float32)  #2.5에 거의 수렴
+ tf.Tensor(2.4946702, shape=(), dtype=float32)  #2.5에 거의 수렴 

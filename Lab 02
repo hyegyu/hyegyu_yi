@@ -1,36 +1,40 @@
-import tensorflow as tf
-import numpy as np
-tf.enable_eager_execution()
+#H(x) = Wx+b 를 텐서플로우를 통해 나타내는 방법
 
-# Data
-x_data = [1, 2, 3, 4, 5]
-y_data = [1, 2, 3, 4, 5]
+x_data = [1, 2, 3, 4, 5]            # Data 준비
+y_data = [1, 2, 3, 4, 5]            # => 입력과 출력이 같은 모델을 만듬
 
-# W, b initialize
-W = tf.Variable(2.9)
-b = tf.Variable(0.5)
+W = tf.Variable(2.9)                # W의 초기값을 정의
+b = tf.Variable(0.5)                # b의 초기값을 정의
 
-hypothesis = w * x_data + b
+hypothesis = w * x_data + b         #가설함수 설정
 
-cost = tf.reduce_mean(tf.square(hypothesis - y_data))
 
-v = [1., 2., 3., 4.]
-tf.reduce_mean(v) #2.5
+#cost함수 구하기
+cost = tf.reduce_mean(tf.square(hypothesis - y_data))      #cost 함수 정의
 
-tf.square(3) #9
+v = [1., 2., 3., 4.]                # v값
+tf.reduce_mean(v)                   # 차원이 줄어드는 평균 구하기
+#결과 값 : 2.5 
+tf.square(3)                        # square : 제곱
+#결과 값 : 9 
 
-#Learning_rate initialize
-learning_rate = 0.01
 
-with tf.GradientTape() as tape:
-    hypothesis = w * x_data + b
+#Gradient descent(경사하강 알고리즘) : cost함수를 최소화시키는 W와 b 찾는 밤법
+learning_rate = 0.01                #숫자가 클수록 많이 반영되어 변화가 커짐 
+
+with tf.GradientTape() as tape:     #GradientTape변수 변화 정보를 tape에 아래(Hypothsis, cost)의 것을 기록           
+    hypothesis = w * x_data + b    
     cost = tf.reduce_mean(tf.square(hypothesis - y_data))
 
-W_grad, b_grad = tape.gradient(cost, [W, b])
+W_grad, b_grad = tape.gradient(cost, [W, b])        #경사도(기울기) 값을 구하여 정의
 
-W.assign_sub(learning_rate * W_grad)
-b.assign_sub(learning_rate * b_grad)
+W.assign_sub(learning_rate * W_grad)                # W값 할당
+b.assign_sub(learning_rate * b_grad)                # b값 할당
 
+=> 26~33의 과정을 여러번 반복하여 w와 b의 값을 할당함
+
+
+#위의 과정을 for문을 사용하려 100번 반복
 W = tf.Variable(2.9)
 b = tf.Variable(0.5)
 
@@ -42,16 +46,21 @@ for i in range(100):
     W_grad, b_grad = tape.gradient(cost, [W, b])
     W.assign_sub(learning_rate * W_grad)
     b.assign_sub(learning_rate * b_grad)
-    if i % 10 == 0:
+    if i % 10 == 0:                                     #중간중간 값을 보기 위하여 10번에 한번씩은 결과가 나오도록 설정
       print("{:5}|{:10.4f}|{:10.4f}|{:10.6f}".format(i, W.numpy(), b.numpy(), cost))
 
 
+# 위에 내용 정리
+import tensorflow as tf
+tf.enable_eager_execution()         #활성화
 
 W = tf.Variable(2.9)
-b = tf.Variable(0.5)
+b = tf.Variable(0.5)                #변수값 임의로 지정
 
-for i in range(100):
-    with tf.GradientTape() as tape:
+learning_rate = 0.01                #학습계수 지정
+
+for i in range(100+1):              #101번 반복
+    with tf.GradientTape() as tape:         #지속 갱신함!!!
         hypothesis = W * x_data + b
         cost = tf.reduce_mean(tf.square(hypothesis - y_data))
     W_grad, b_grad = tape.gradient(cost, [W, b])
@@ -60,6 +69,29 @@ for i in range(100):
     if i % 10 == 0:
       print("{:5}|{:10.4f}|{:10.4f}|{:10.6f}".format(i, W.numpy(), b.numpy(), cost))
 
-plt.plot(x_data, y_data, 'o')
-plt.plot(x_data, hypothesis.numpy(), 'r-')
-plt.ylim(0, 8)
+#결과값 i:101번의 반복중 10번에 한번씩 결과값이 나옴 W:초기값 2.9에서 1.0으로 수렴 
+        b:초기값0.5에서 -0.01로 수렴               cost:작아질수록 오차가 줄어듦(정확도가 높아짐)
+    i        W          b       cost
+    0|    2.4520|    0.3760| 45.660004
+   10|    1.1036|    0.0034|  0.206336
+   20|    1.0128|   -0.0209|  0.001026
+   30|    1.0065|   -0.0218|  0.000093
+   40|    1.0059|   -0.0212|  0.000083
+   50|    1.0057|   -0.0205|  0.000077
+   60|    1.0055|   -0.0198|  0.000072
+   70|    1.0053|   -0.0192|  0.000067
+   80|    1.0051|   -0.0185|  0.000063
+   90|    1.0050|   -0.0179|  0.000059
+  100|    1.0048|   -0.0173|  0.000055
+
+
+#새로운 데이터로 다른것을 예측 (Hypothesis(x)=Wx+b 사용)
+x_data = [1, 2, 3, 4, 5]            # Data 준비
+y_data = [1, 2, 3, 4, 5]            # => 입력과 출력이 같은 모델을 만듬
+
+print(W * 5 + b)
+print(W * 2.5 + b)
+
+#결과값
+ tf.Tensor(5.00667, shape=(), dtype=float32)    #5에 거의 수렴
+ tf.Tensor(2.4946702, shape=(), dtype=float32)  #2.5에 거의 수렴
